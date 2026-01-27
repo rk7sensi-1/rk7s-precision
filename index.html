@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AUXILIO</title>
+
+<style>
+:root{ --red:#ff1a1a; }
+
+*{ margin:0; padding:0; box-sizing:border-box; font-family:Arial; }
+
+body{
+  background:#000;
+  color:#fff;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  padding:20px;
+}
+
+canvas{ position:fixed; inset:0; z-index:-1; }
+
+.login, .app{ display:none; }
+.login.active, .app.active{ display:flex; flex-direction:column; align-items:center; gap:15px; width:100%; }
+
+.box{
+  width:100%;
+  max-width:350px;
+  background:linear-gradient(#1a1a1a,#0f0f0f);
+  border-radius:14px;
+  padding:18px;
+  border:1px solid var(--red);
+  box-shadow:0 0 30px rgba(255,0,0,.8);
+}
+
+.title{ 
+  text-align:center; 
+  font-weight:bold; 
+  margin-bottom:12px;
+  font-size:16px;
+  word-wrap:break-word;
+}
+
+.line{ 
+  height:2px; 
+  background:var(--red); 
+  margin:10px 0; 
+}
+
+input[type="text"], input[type="password"]{
+  width:100%;
+  padding:12px;
+  margin-bottom:10px;
+  border-radius:8px;
+  border:1px solid var(--red);
+  background:#111;
+  color:#fff;
+  font-size:14px;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  background:linear-gradient(90deg,#ff0000,#ff4d4d);
+  border:none;
+  border-radius:10px;
+  color:#fff;
+  font-weight:bold;
+  cursor:pointer;
+  box-shadow:0 0 20px rgba(255,0,0,.9);
+  transition:all 0.3s;
+  font-size:14px;
+}
+
+button:hover{
+  transform:scale(1.02);
+  box-shadow:0 0 25px rgba(255,0,0,1);
+}
+
+button:active{
+  transform:scale(0.98);
+}
+
+.tabs{ 
+  display:flex; 
+  gap:8px; 
+  margin-bottom:12px; 
+}
+
+.tab{
+  flex:1; 
+  text-align:center; 
+  padding:10px;
+  background:#2a2a2a; 
+  border-radius:8px; 
+  cursor:pointer;
+  transition:all 0.3s;
+  font-size:14px;
+  font-weight:bold;
+}
+
+.tab:hover{
+  background:#3a3a3a;
+}
+
+.tab.active{ 
+  background:var(--red);
+  box-shadow:0 0 10px rgba(255,0,0,.5);
+}
+
+.content{ display:none; }
+.content.active{ display:block; }
+
+.option{ 
+  display:flex; 
+  align-items:center;
+  gap:10px; 
+  margin-bottom:10px;
+  padding:0;
+}
+
+.option input[type="checkbox"]{ 
+  accent-color:var(--red);
+  width:18px;
+  height:18px;
+  cursor:pointer;
+  flex-shrink:0;
+}
+
+.option label{
+  cursor:pointer;
+  flex:1;
+  font-size:15px;
+}
+
+.slider{ 
+  margin-bottom:12px;
+}
+
+.slider label{ 
+  display:flex; 
+  justify-content:space-between;
+  margin-bottom:6px;
+  font-size:15px;
+}
+
+.slider input[type="range"]{ 
+  width:100%; 
+  accent-color:var(--red);
+  cursor:pointer;
+}
+
+select{
+  width:100%; 
+  padding:10px; 
+  background:#111;
+  border:1px solid var(--red); 
+  color:#fff;
+  border-radius:8px; 
+  margin:10px 0;
+  cursor:pointer;
+  font-size:14px;
+}
+
+select:focus{
+  outline:none;
+  border-color:#ff4d4d;
+  box-shadow:0 0 10px rgba(255,0,0,.3);
+}
+
+.radio{ 
+  padding:10px 0;
+  margin:10px 0;
+}
+
+.radio p{ 
+  text-align:center; 
+  margin-bottom:10px;
+  font-weight:bold;
+  font-size:15px;
+}
+
+.radio > div{ 
+  display:flex; 
+  justify-content:space-around;
+  gap:15px;
+}
+
+.radio label{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  cursor:pointer;
+  font-size:14px;
+}
+
+.radio input[type="radio"]{ 
+  accent-color:var(--red);
+  width:16px;
+  height:16px;
+  cursor:pointer;
+}
+
+.inject-outside{
+  width:100%;
+  max-width:350px;
+}
+
+.inject-outside button{
+  font-size:14px;
+  padding:16px;
+}
+
+#info p{
+  padding:10px;
+  margin-bottom:8px;
+  background:#1a1a1a;
+  border-radius:6px;
+  font-size:14px;
+}
+
+.error{ 
+  color:#ff5555; 
+  text-align:center; 
+  margin-top:10px; 
+  font-size:14px;
+  min-height:20px;
+}
+
+@media(max-width:480px){ 
+  .box{ 
+    padding:15px;
+    max-width:100%;
+  }
+  
+  .title{
+    font-size:15px;
+  }
+  
+  button{
+    font-size:13px;
+    padding:12px;
+  }
+  
+  .tab{
+    font-size:13px;
+    padding:8px;
+  }
+  
+  .radio > div{
+    flex-direction:column;
+    align-items:center;
+  }
+}
+
+@media(max-width:360px){
+  .title{
+    font-size:14px;
+  }
+  
+  body{
+    padding:10px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="bg"></canvas>
+
+<!-- LOGIN -->
+<div class="login active" id="login">
+  <div class="box">
+    <div class="title">AUXILIO BY @RK7S_FFX</div>
+    <input id="keyInput" type="text" placeholder="Digite sua KEY">
+    <button id="loginBtn">ENTRAR</button>
+    <div class="error" id="error"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app">
+  <div class="box">
+    <div class="title">AUXILIO BY @RK7S_FFX</div>
+    <div class="line"></div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="aimbot">Aimbot</div>
+      <div class="tab" data-tab="info">Info</div>
+    </div>
+
+    <div class="content active" id="aimbot">
+      <div class="option">
+        <input type="checkbox" id="precisaoFull">
+        <label for="precisaoFull">Precisão Full</label>
+      </div>
+      
+      <div class="option">
+        <input type="checkbox" id="reduzirRecuo">
+        <label for="reduzirRecuo">Reduzir Recuo</label>
+      </div>
+
+      <div class="option">
+        <input type="checkbox" id="reduzirInputLeg">
+        <label for="reduzirInputLeg">Reduzir Input Leg</label>
+      </div>
+
+      <div class="slider">
+        <label><span>Fov</span><span id="fovVal">0</span></label>
+        <input type="range" min="0" max="10" id="fov" value="0">
+      </div>
+
+      <select id="auxilioType">
+        <option value="head">Auxilio Head</option>
+        <option value="recoil">Auxilio Recoil</option>
+        <option value="sensi">Auxilio Sensi</option>
+      </select>
+
+      <div class="radio">
+        <p>Tipo de Aimbot:</p>
+        <div>
+          <label>
+            <input type="radio" name="aim" value="atirar" checked> 
+            Ao Atirar
+          </label>
+          <label>
+            <input type="radio" name="aim" value="olhar"> 
+            Ao Olhar
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="content" id="info">
+      <p><b>Modelo:</b> <span id="deviceModel">Detectando...</span></p>
+      <p><b>Dicas:</b> Ative Funções no Treinamento.</p>
+      <p><b>Key:</b> <span id="currentKey" style="color:var(--red);"></span></p>
+    </div>
+  </div>
+
+  <!-- BOTÃO FORA DO MENU -->
+  <div class="inject-outside">
+    <button id="injectBtn">INJETAR FUNÇÕES NO JOGO</button>
+  </div>
+</div>
+
+<!-- FIREBASE REALTIME DATABASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAK9laPRZI1RaPHNrnad_5wRDeaJZpIVUA",
+  authDomain: "precision-e87a6.firebaseapp.com",
+  databaseURL: "https://precision-e87a6-default-rtdb.firebaseio.com",
+  projectId: "precision-e87a6",
+};
+
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
+function getDeviceInfo(){
+  const ua = navigator.userAgent;
+  let device = "Dispositivo Desconhecido";
+  
+  if(/iPhone/.test(ua)){
+    const match = ua.match(/iPhone\s?(\w+)?/);
+    device = match ? `iPhone ${match[1] || ""}` : "iPhone";
+    
+    if(/iPhone15/.test(ua)) device = "iPhone 15";
+    else if(/iPhone14/.test(ua)) device = "iPhone 14";
+    else if(/iPhone13/.test(ua)) device = "iPhone 13";
+    else if(/iPhone12/.test(ua)) device = "iPhone 12";
+    else if(/iPhone11/.test(ua)) device = "iPhone 11";
+    else if(/iPhoneX/.test(ua)) device = "iPhone X";
+    else if(/iPhone8/.test(ua)) device = "iPhone 8";
+  }
+  else if(/iPad/.test(ua)){
+    device = "iPad";
+  }
+  else if(/Android/.test(ua)){
+    if(/SM-/.test(ua)){
+      const match = ua.match(/SM-([A-Z0-9]+)/);
+      device = match ? `Samsung ${match[1]}` : "Samsung";
+    }
+    else if(/Moto/.test(ua)){
+      const match = ua.match(/Moto\s?([A-Z0-9\s]+)/);
+      device = match ? `Motorola ${match[1]}`.trim() : "Motorola";
+      
+      if(/moto g9 play/i.test(ua)) device = "Moto G9 Play";
+      else if(/moto g8/i.test(ua)) device = "Moto G8";
+      else if(/moto g7/i.test(ua)) device = "Moto G7";
+    }
+    else if(/Redmi|Mi/.test(ua)){
+      const match = ua.match(/(Redmi|Mi)\s?([A-Z0-9\s]+)/);
+      device = match ? `Xiaomi ${match[1]} ${match[2]}`.trim() : "Xiaomi";
+    }
+    else if(/LG/.test(ua)){
+      device = "LG";
+    }
+    else{
+      device = "Android";
+    }
+  }
+  else if(/Windows/.test(ua)){
+    device = "PC Windows";
+  }
+  else if(/Mac/.test(ua)){
+    device = "Mac";
+  }
+  
+  return device;
+}
+
+function formatDateTime(){
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2,'0');
+  const month = String(now.getMonth()+1).padStart(2,'0');
+  const year = now.getFullYear();
+  const hours = String(now.getHours()).padStart(2,'0');
+  const minutes = String(now.getMinutes()).padStart(2,'0');
+  return `${hours}:${minutes}/${day}/${month}/${year}`;
+}
+
+document.getElementById("loginBtn").onclick = async () => {
+  const key = keyInput.value.trim().toUpperCase();
+  if(!key){
+    error.innerText = "Digite uma KEY!";
+    return;
+  }
+
+  try{
+    const keyRef = ref(database, `keys/${key}`);
+    const snapshot = await get(keyRef);
+
+    if(!snapshot.exists()){
+      error.innerText = "KEY não encontrada!";
+      return;
+    }
+
+    const data = snapshot.val();
+
+    if(data.ativa !== true){
+      error.innerText = "KEY inválida ou expirada!";
+      return;
+    }
+
+    if(data.expiraEm && new Date(data.expiraEm) < new Date()){
+      error.innerText = "KEY expirada!";
+      await update(keyRef, {ativa: false});
+      return;
+    }
+
+    const deviceInfo = getDeviceInfo();
+    const dispositivos = data.dispositivos || [];
+    const maxDispositivos = data.maxDispositivos || 1;
+
+    const deviceExists = dispositivos.includes(deviceInfo);
+
+    if(!deviceExists){
+      if(dispositivos.length >= maxDispositivos){
+        error.innerText = `Limite de ${maxDispositivos} dispositivo(s) atingido!`;
+        return;
+      }
+
+      dispositivos.push(deviceInfo);
+      await update(keyRef, {
+        dispositivos: dispositivos
+      });
+    }
+
+    const logEntry = `Acesso de ${deviceInfo} em ${formatDateTime()}`;
+    const logs = data.logs || [];
+    logs.push(logEntry);
+    
+    await update(keyRef, {
+      logs: logs
+    });
+
+    sessionStorage.setItem("key", key);
+    sessionStorage.setItem("device", deviceInfo);
+
+    login.classList.remove("active");
+    appDiv.classList.add("active");
+
+    document.getElementById("deviceModel").innerText = deviceInfo;
+    document.getElementById("currentKey").innerText = key;
+
+  }catch(e){
+    console.error("Erro:", e);
+    error.innerText = "Erro ao validar KEY!";
+  }
+};
+
+const login = document.getElementById("login");
+const appDiv = document.getElementById("app");
+const keyInput = document.getElementById("keyInput");
+const error = document.getElementById("error");
+
+const savedKey = sessionStorage.getItem("key");
+const savedDevice = sessionStorage.getItem("device");
+if(savedKey && savedDevice){
+  login.classList.remove("active");
+  appDiv.classList.add("active");
+  document.getElementById("deviceModel").innerText = savedDevice;
+  document.getElementById("currentKey").innerText = savedKey;
+}
+</script>
+
+<!-- CARREGA ARQUIVO EXTERNO DE CHAVES -->
+<script src="chaves_codigos.js"></script>
+
+<script>
+// TABS
+document.querySelectorAll(".tab").forEach(t=>{
+  t.onclick=()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".content").forEach(c=>c.classList.remove("active"));
+    t.classList.add("active");
+    document.getElementById(t.dataset.tab).classList.add("active");
+  }
+});
+
+// FOV SLIDER
+const fovSlider = document.getElementById("fov");
+const fovVal = document.getElementById("fovVal");
+fovSlider.oninput = () => {
+  fovVal.innerText = fovSlider.value;
+};
+
+// BOTÃO INJETAR
+const injectBtn = document.getElementById("injectBtn");
+injectBtn.onclick = () => {
+  injectBtn.disabled = true;
+  injectBtn.innerText = "INJETANDO FUNÇÕES.....";
+  
+  setTimeout(() => {
+    const currentUser = {
+      key: sessionStorage.getItem("key") || "N/A",
+      device: sessionStorage.getItem("device") || "N/A"
+    };
+    
+    let arquivoInjecao = `/*
+ * ==========================================
+ * AUXÍLIO RK7S - ARQUIVO DE INJEÇÃO
+ * ==========================================
+ * Criado por: @rk7s_ffx
+ * Key: ${currentUser.key}
+ * Dispositivo: ${currentUser.device}
+ * Data: ${new Date().toLocaleString('pt-BR')}
+ * ==========================================
+ */
+
+`;
+
+    let codigosParaInjetar = [];
+    let funcoesAtivas = [];
+
+    // Verifica funções ativas e busca códigos do arquivo externo
+    if (document.getElementById('precisaoFull').checked) {
+      codigosParaInjetar.push(CHAVES_CODIGOS['PF-8X9K-4M2N']);
+      funcoesAtivas.push('Precisão Full');
+    }
+
+    if (document.getElementById('reduzirRecuo').checked) {
+      codigosParaInjetar.push(CHAVES_CODIGOS['RR-3L7P-9W1Q']);
+      funcoesAtivas.push('Reduzir Recuo');
+    }
+
+    if (document.getElementById('reduzirInputLeg').checked) {
+      codigosParaInjetar.push(CHAVES_CODIGOS['IL-6H5T-2Y8V']);
+      funcoesAtivas.push('Reduzir Input Leg');
+    }
+
+    // FOV - sempre injeta
+    const fovValue = document.getElementById('fov').value;
+    codigosParaInjetar.push(CHAVES_CODIGOS['FV-4D9R-7S3C'](fovValue));
+    funcoesAtivas.push(`Fov (${fovValue})`);
+
+    // Auxilio Type
+    const auxilioType = document.getElementById('auxilioType').value;
+    if (auxilioType === 'head') {
+      codigosParaInjetar.push(CHAVES_CODIGOS['AH-2K8M-5X6P']);
+      funcoesAtivas.push('Auxilio Head');
+    } else if (auxilioType === 'recoil') {
+      codigosParaInjetar.push(CHAVES_CODIGOS['AR-9T4L-1N7W']);
+      funcoesAtivas.push('Auxilio Recoil');
+    } else if (auxilioType === 'sensi') {
+      codigosParaInjetar.push(CHAVES_CODIGOS['AS-5Q3H-8V2M']);
+      funcoesAtivas.push('Auxilio Sensi');
+    }
+
+    // Tipo de Aimbot
+    const aimbotType = document.querySelector('input[name="aim"]:checked').value;
+    if (aimbotType === 'atirar') {
+      codigosParaInjetar.push(CHAVES_CODIGOS['AA-7P1K-4R9X']);
+      funcoesAtivas.push('Aimbot: Ao Atirar');
+    } else if (aimbotType === 'olhar') {
+      codigosParaInjetar.push(CHAVES_CODIGOS['AO-3M6T-2L8Q']);
+      funcoesAtivas.push('Aimbot: Ao Olhar');
+    }
+
+    arquivoInjecao += codigosParaInjetar.join('\n\n');
+    
+    arquivoInjecao += `
+
+/*
+ * ==========================================
+ * FUNÇÕES INJETADAS: ${funcoesAtivas.length}
+ * ${funcoesAtivas.map(f => '- ' + f).join('\n * ')}
+ * ==========================================
+ */
+
+console.log('════════════════════════════════════════════════════════════════');
+console.log('           AUXÍLIO RK7S - INJEÇÃO COMPLETA');
+console.log('════════════════════════════════════════════════════════════════');
+console.log('Funções ativas: ${funcoesAtivas.length}');
+${funcoesAtivas.map(f => `console.log('✓ ${f}');`).join('\n')}
+console.log('════════════════════════════════════════════════════════════════');
+`;
+
+    try {
+      eval(arquivoInjecao);
+      console.log('\n[SUCESSO] Todas as funções foram injetadas!\n');
+    } catch (e) {
+      console.error('[ERRO] Falha ao injetar:', e);
+    }
+
+    injectBtn.innerText = "INJETADO COM SUCESSO!!!";
+    setTimeout(() => {
+      injectBtn.innerText = "INJETAR FUNÇÕES NO JOGO";
+      injectBtn.disabled = false;
+    }, 2000);
+  }, 2000);
+};
+
+// PARTÍCULAS
+const canvas = document.getElementById("bg");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [...Array(80)].map(() => ({
+  x: Math.random() * canvas.width,
+  y: Math.random() * canvas.height,
+  vx: (Math.random() - 0.5) * 0.4,
+  vy: (Math.random() - 0.5) * 0.4
+}));
+
+function animate(){
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  particles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    
+    if(p.x < 0 || p.x > canvas.width) p.vx *= -1;
+    if(p.y < 0 || p.y > canvas.height) p.vy *= -1;
+    
+    ctx.fillStyle = "#ff1a1a";
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  
+  requestAnimationFrame(animate);
+}
+
+animate();
+
+window.addEventListener('resize', () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+</script>
+
+</body>
+</html>

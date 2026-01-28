@@ -1,309 +1,433 @@
-// ==========================================
-// CHAVES E CÓDIGOS - AUXÍLIO RK7S
-// ==========================================
-// Arquivo: chaves_codigos.js
-// Este arquivo contém as chaves e códigos de injeção
-// ==========================================
+/**
+ * ==========================================
+ * AUXILIO RK7S - SISTEMA DE CÓDIGOS
+ * ==========================================
+ * Arquivo: chaves_codigos.js
+ * Versão: 2.0
+ * Autor: @rk7s_ffx
+ * ==========================================
+ */
+
+// =====================
+// CONFIGURAÇÕES GLOBAIS
+// =====================
+const CONFIG = {
+  // Centralização
+  CENTRO_FIXO: true,
+  LIMITE_VERTICAL: 0.15,        // Impede ultrapassar o ponto central
+  
+  // Níveis de Suavização
+  SUAVIZACAO_LEVE: 0.18,        // Movimento suave e natural
+  SUAVIZACAO_MEDIA: 0.32,       // Equilíbrio entre velocidade e suavidade
+  SUAVIZACAO_FORTE: 0.48,       // Movimento rápido e direto
+  
+  // Sensibilidade
+  SENSI_BASE: 0.85,             // Multiplicador de sensibilidade
+  RECUO_BASE: 0.65,             // Controle de recuo base
+  
+  // Campo de Visão
+  FOV_MAX: 10,                  // FOV máximo permitido
+  
+  // Tempos (ms)
+  DELAY_INPUT: 5,               // Redução de delay de input
+  TEMPO_TRANSICAO: 150          // Tempo de transição suave
+};
+
+// =====================
+// FUNÇÕES UTILITÁRIAS
+// =====================
+
+/**
+ * Limita um valor entre min e max
+ */
+const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+
+/**
+ * Interpolação linear entre dois valores
+ */
+const lerp = (a, b, t) => a + (b - a) * t;
+
+/**
+ * Centraliza posição com limite vertical
+ */
+const centralizar = (atual, alvo, fator) => {
+  const yCentral = clamp(
+    alvo.y,
+    alvo.y - CONFIG.LIMITE_VERTICAL,
+    alvo.y + CONFIG.LIMITE_VERTICAL
+  );
+  return {
+    x: lerp(atual.x, alvo.x, fator),
+    y: lerp(atual.y, yCentral, fator)
+  };
+};
+
+/**
+ * Aplica suavização com curva personalizada
+ */
+const suavizar = (valor, intensidade) => {
+  const curva = Math.pow(intensidade, 1.5);
+  return valor * curva;
+};
+
+/**
+ * Calcula distância entre dois pontos
+ */
+const distancia = (p1, p2) => {
+  const dx = p2.x - p1.x;
+  const dy = p2.y - p1.y;
+  return Math.sqrt(dx * dx + dy * dy);
+};
+
+// =====================
+// SISTEMA DE CÓDIGOS
+// =====================
 
 const CHAVES_CODIGOS = {
-  // Chave Precisão Full
+  /**
+   * PRECISÃO FULL
+   * Maximiza precisão dos disparos
+   */
   'PF-8X9K-4M2N': `
-// CÓDIGO PRECISÃO FULL
-window.precisaoFull = {
-  ativo: true,
-  estabilizacao: 100,
-  iniciar: function() {
-    console.log('[✓] Precisão Full ATIVADA');
-    window.aimShake = 0;
-    window.aimSway = 0;
-    window.weaponMovement = 0;
-    window.stabilization = {horizontal: 1.0, vertical: 1.0, movement: 0};
-    console.log('[INFO] Mira 100% estável - Sem tremor');
-  }
-};
-window.precisaoFull.iniciar();`,
+console.log('✓ [PRECISÃO FULL] Sistema Ativado');
 
-  // Chave Reduzir Recuo
-  'RR-3L7P-9W1Q': `
-// CÓDIGO REDUZIR RECUO
-window.reduzirRecuo = {
+// Sistema de Precisão Avançada
+const SistemaPrecisao = {
   ativo: true,
-  reducao: 100,
-  iniciar: function() {
-    console.log('[✓] Reduzir Recuo ATIVADO');
-    window.recoilMultiplier = 0;
-    window.verticalRecoil = 0;
-    window.horizontalRecoil = 0;
-    window.recoilPattern = null;
-    window.weaponStability = {vertical: 1.0, horizontal: 1.0, recovery: 0};
-    console.log('[INFO] Recuo 100% reduzido - Arma estável');
-  }
-};
-window.reduzirRecuo.iniciar();`,
-
-  // Chave Reduzir Input Leg
-  'IL-6H5T-2Y8V': `
-// CÓDIGO REDUZIR INPUT LEG
-window.reduzirInputLeg = {
-  ativo: true,
-  delay: 0,
-  iniciar: function() {
-    console.log('[✓] Reduzir Input Leg ATIVADO');
-    window.inputDelay = 0;
-    window.inputLag = 0;
-    window.mouseSensitivityDelay = 0;
-    window.inputResponse = {delay: 0, acceleration: 1.0, instant: true};
-    console.log('[INFO] Input lag ZERO - Resposta instantânea');
-  }
-};
-window.reduzirInputLeg.iniciar();`,
-
-  // Chave Fov (função que recebe valor)
-  'FV-4D9R-7S3C': function(valor) {
-    return `
-// CÓDIGO FOV - Valor: ${valor}
-window.fovCustom = {
-  ativo: true,
-  valor: ${valor},
-  iniciar: function() {
-    console.log('[✓] FOV ATIVADO - Valor: ${valor}');
-    window.fovSystem = {
-      radius: ${valor} * 10,
-      magneticZone: ${valor} * 8,
-      detectionRadius: ${valor} * 12,
-      magneticStrength: (10 - ${valor}) / 10,
-      applyMagnetic: function() {
-        window.aimAssistZone = {
-          enabled: true,
-          radius: this.radius,
-          strength: this.magneticStrength,
-          checkTarget: function(target) {
-            const distance = this.calculateDistance(target);
-            if (distance <= this.radius) {
-              console.log('[FOV] Alvo na zona - GRUDANDO');
-              window.magneticLock = true;
-              return true;
-            }
-            return false;
-          },
-          calculateDistance: function(target) {
-            const aim = window.currentAimPosition || {x:0, y:0};
-            const pos = target.position || {x:0, y:0};
-            return Math.sqrt(Math.pow(pos.x - aim.x, 2) + Math.pow(pos.y - aim.y, 2));
-          }
-        };
-      }
-    };
-    window.fovSystem.applyMagnetic();
-    console.log('[INFO] Zona magnética: ${valor * 10}px');
-    console.log('[INFO] Força: ' + ((10 - ${valor}) * 10) + '%');
-  }
-};
-window.fovCustom.iniciar();`;
+  multiplicador: 0.95,
+  
+  aplicar(valor) {
+    if (!this.ativo) return valor;
+    const ajustado = valor * this.multiplicador;
+    return clamp(ajustado, 0, 1);
   },
+  
+  otimizar(x, y) {
+    return {
+      x: this.aplicar(x),
+      y: this.aplicar(y)
+    };
+  }
+};
 
-  // Chave Auxilio Head
+window.SistemaPrecisao = SistemaPrecisao;
+console.log('  → Multiplicador:', SistemaPrecisao.multiplicador);
+`,
+
+  /**
+   * REDUZIR RECUO
+   * Controla e minimiza o recuo das armas
+   */
+  'RR-3L7P-9W1Q': `
+console.log('✓ [CONTROLE DE RECUO] Sistema Ativado');
+
+// Sistema de Controle de Recuo
+const ControleRecuo = {
+  ativo: true,
+  intensidade: ${CONFIG.RECUO_BASE},
+  compensacao: true,
+  
+  aplicar(valorRecuo) {
+    if (!this.ativo) return valorRecuo;
+    
+    let resultado = valorRecuo * this.intensidade;
+    
+    // Compensação automática
+    if (this.compensacao) {
+      resultado *= 0.85;
+    }
+    
+    return clamp(resultado, 0, valorRecuo);
+  },
+  
+  desativar() {
+    this.ativo = false;
+    console.log('  → Controle de recuo desativado');
+  }
+};
+
+window.ControleRecuo = ControleRecuo;
+console.log('  → Intensidade:', ControleRecuo.intensidade);
+console.log('  → Compensação:', ControleRecuo.compensacao ? 'Ativa' : 'Inativa');
+`,
+
+  /**
+   * REDUZIR INPUT LAG
+   * Otimiza resposta dos comandos
+   */
+  'IL-6H5T-2Y8V': `
+console.log('✓ [OTIMIZAÇÃO DE RESPOSTA] Sistema Ativado');
+
+// Sistema de Otimização de Input
+const OtimizacaoInput = {
+  ativo: true,
+  reducaoDelay: ${CONFIG.DELAY_INPUT},
+  
+  otimizar(tempoMs) {
+    if (!this.ativo) return tempoMs;
+    const otimizado = tempoMs - this.reducaoDelay;
+    return clamp(otimizado, 0, tempoMs);
+  },
+  
+  processarComando(comando, tempo) {
+    const tempoOtimizado = this.otimizar(tempo);
+    return {
+      comando: comando,
+      tempo: tempoOtimizado,
+      ganho: tempo - tempoOtimizado
+    };
+  }
+};
+
+window.OtimizacaoInput = OtimizacaoInput;
+console.log('  → Redução de delay:', OtimizacaoInput.reducaoDelay + 'ms');
+`,
+
+  /**
+   * FOV (CAMPO DE VISÃO)
+   * Ajusta o campo de visão do auxílio
+   */
+  'FV-4D9R-7S3C': (fov = 0) => `
+const fovConfigurado = clamp(${fov}, 0, ${CONFIG.FOV_MAX});
+
+console.log('✓ [FOV] Sistema Configurado');
+
+// Sistema de Campo de Visão
+const SistemaFOV = {
+  ativo: fovConfigurado > 0,
+  valor: fovConfigurado,
+  raio: fovConfigurado * 10,
+  
+  dentroDoCampo(posicao, centro) {
+    if (!this.ativo) return true;
+    const dist = distancia(posicao, centro);
+    return dist <= this.raio;
+  },
+  
+  calcularPrioridade(posicao, centro) {
+    const dist = distancia(posicao, centro);
+    const prioridade = 1 - (dist / this.raio);
+    return clamp(prioridade, 0, 1);
+  }
+};
+
+window.SistemaFOV = SistemaFOV;
+console.log('  → FOV:', fovConfigurado);
+console.log('  → Raio efetivo:', SistemaFOV.raio);
+console.log('  → Status:', SistemaFOV.ativo ? 'Ativo' : 'Inativo');
+`,
+
+  /**
+   * AUXÍLIO HEAD
+   * Centralização prioritária em headshot
+   */
   'AH-2K8M-5X6P': `
-// CÓDIGO AUXILIO HEAD
-window.auxilioHead = {
+console.log('✓ [AUXÍLIO HEAD] Sistema Ativado');
+
+// Sistema de Centralização Head
+const AuxilioHead = {
   ativo: true,
-  priority: 'head',
-  iniciar: function() {
-    console.log('[✓] Auxilio Head ATIVADO');
-    window.headTracking = {
-      enabled: true,
-      lockOnHead: true,
-      maxDeviation: 2,
-      trackHead: function(target) {
-        if (!target || !target.headHitbox) return;
-        const headBox = target.headHitbox;
-        window.targetLock = {
-          x: headBox.center.x,
-          y: headBox.center.y,
-          active: true,
-          locked: true,
-          priority: 'head'
-        };
-        window.aimBoundary = {
-          enabled: true,
-          maxOffset: this.maxDeviation,
-          correctAim: function(currentPos) {
-            const target = window.targetLock;
-            if (!target.active) return currentPos;
-            const deviation = {
-              x: Math.abs(currentPos.x - target.x),
-              y: Math.abs(currentPos.y - target.y)
-            };
-            if (deviation.x > this.maxOffset || deviation.y > this.maxOffset) {
-              console.log('[HEAD] Corrigindo - Voltando para cabeça');
-              return {x: target.x, y: target.y};
-            }
-            return currentPos;
-          }
-        };
-        console.log('[HEAD] Cabeça travada');
-      }
-    };
-    console.log('[INFO] Prioridade: CABEÇA');
-    console.log('[INFO] Desvio máx: 2px');
+  suavizacao: ${CONFIG.SUAVIZACAO_MEDIA},
+  prioridadeCabeca: true,
+  
+  centralizar(posicaoAtual, posicaoAlvo) {
+    if (!this.ativo) return posicaoAtual;
+    
+    // Prioriza área da cabeça
+    const alvoAjustado = this.prioridadeCabeca ? {
+      x: posicaoAlvo.x,
+      y: posicaoAlvo.y - 0.1 // Offset para cabeça
+    } : posicaoAlvo;
+    
+    return centralizar(posicaoAtual, alvoAjustado, this.suavizacao);
+  },
+  
+  ajustarSuavizacao(nivel) {
+    this.suavizacao = clamp(nivel, 0.1, 0.9);
+    console.log('  → Suavização ajustada para:', this.suavizacao);
   }
 };
-window.auxilioHead.iniciar();`,
 
-  // Chave Auxilio Recoil
+window.AuxilioHead = AuxilioHead;
+console.log('  → Suavização:', AuxilioHead.suavizacao);
+console.log('  → Prioridade cabeça:', AuxilioHead.prioridadeCabeca ? 'Sim' : 'Não');
+`,
+
+  /**
+   * AUXÍLIO RECOIL
+   * Sistema combinado de auxílio com controle de recuo
+   */
   'AR-9T4L-1N7W': `
-// CÓDIGO AUXILIO RECOIL
-window.auxilioRecoil = {
+console.log('✓ [AUXÍLIO RECOIL] Sistema Ativado');
+
+// Sistema Combinado Auxílio + Recuo
+const AuxilioRecoil = {
   ativo: true,
-  controle: 95,
-  iniciar: function() {
-    console.log('[✓] Auxilio Recoil ATIVADO');
-    window.recoilCompensation = {
-      enabled: true,
-      vertical: 0.95,
-      horizontal: 0.95,
-      autoCompensate: function() {
-        if (window.isShooting) {
-          const recoil = window.currentRecoil || {x:0, y:0};
-          window.aimAdjustment = {
-            x: -recoil.x * this.horizontal,
-            y: -recoil.y * this.vertical
-          };
-        }
-      }
+  controleRecuo: ${CONFIG.RECUO_BASE},
+  suavizacao: ${CONFIG.SUAVIZACAO_MEDIA},
+  
+  processar(posicaoAtual, posicaoAlvo, valorRecuo) {
+    if (!this.ativo) return posicaoAtual;
+    
+    // Centraliza no alvo
+    const centralizado = centralizar(
+      posicaoAtual,
+      posicaoAlvo,
+      this.suavizacao
+    );
+    
+    // Compensa recuo
+    const recuoCompensado = valorRecuo * this.controleRecuo;
+    
+    return {
+      x: centralizado.x,
+      y: centralizado.y - (recuoCompensado * 0.5)
     };
-    window.recoilMultiplier = 0.05;
-    console.log('[INFO] Compensação: 95%');
-    console.log('[INFO] Controle automático de recuo');
   }
 };
-window.auxilioRecoil.iniciar();`,
 
-  // Chave Auxilio Sensi
+window.AuxilioRecoil = AuxilioRecoil;
+console.log('  → Controle de recuo:', AuxilioRecoil.controleRecuo);
+console.log('  → Suavização:', AuxilioRecoil.suavizacao);
+`,
+
+  /**
+   * AUXÍLIO SENSI
+   * Ajuste fino de sensibilidade
+   */
   'AS-5Q3H-8V2M': `
-// CÓDIGO AUXILIO SENSI
-window.auxilioSensi = {
+console.log('✓ [AUXÍLIO SENSI] Sistema Ativado');
+
+// Sistema de Ajuste de Sensibilidade
+const AuxilioSensi = {
   ativo: true,
+  multiplicador: ${CONFIG.SENSI_BASE},
   adaptativo: true,
-  iniciar: function() {
-    console.log('[✓] Auxilio Sensi ATIVADO');
-    window.adaptiveSensitivity = {
-      enabled: true,
-      baseMultiplier: 1.0,
-      targetMultiplier: 0.4,
-      adjustSensitivity: function(hasTarget) {
-        if (hasTarget) {
-          window.mouseSensitivity *= this.targetMultiplier;
-          console.log('[SENSI] Modo precisão - Sensi reduzida');
-        } else {
-          window.mouseSensitivity = this.baseMultiplier;
-        }
-      },
-      smoothTransition: function(current, target, speed = 0.1) {
-        return current + (target - current) * speed;
+  
+  aplicar(valor) {
+    if (!this.ativo) return valor;
+    
+    let ajustado = valor * this.multiplicador;
+    
+    // Ajuste adaptativo baseado na velocidade
+    if (this.adaptativo) {
+      const velocidade = Math.abs(valor);
+      if (velocidade > 0.7) {
+        ajustado *= 0.9; // Reduz em movimentos rápidos
       }
-    };
-    console.log('[INFO] Sensibilidade adaptativa ativa');
-    console.log('[INFO] Perto do alvo: -60% sensi');
+    }
+    
+    return ajustado;
+  },
+  
+  ajustarMultiplicador(novoValor) {
+    this.multiplicador = clamp(novoValor, 0.5, 1.5);
+    console.log('  → Multiplicador ajustado para:', this.multiplicador);
   }
 };
-window.auxilioSensi.iniciar();`,
 
-  // Chave Ao Atirar
+window.AuxilioSensi = AuxilioSensi;
+console.log('  → Multiplicador:', AuxilioSensi.multiplicador);
+console.log('  → Modo adaptativo:', AuxilioSensi.adaptativo ? 'Ativo' : 'Inativo');
+`,
+
+  /**
+   * AIMBOT AO ATIRAR
+   * Modo focado e direto ao disparar
+   */
   'AA-7P1K-4R9X': `
-// CÓDIGO AIMBOT AO ATIRAR
-window.aimbotAoAtirar = {
+console.log('✓ [AIMBOT - AO ATIRAR] Sistema Ativado');
+
+// Sistema Aimbot - Modo Disparo
+const AimbotAtirar = {
   ativo: true,
-  modo: 'shoot',
-  iniciar: function() {
-    console.log('[✓] Aimbot AO ATIRAR ativado');
-    window.shootActivatedAim = {
-      enabled: true,
-      onShootStart: function() {
-        console.log('[AIMBOT] Ativado - Atirando');
-        window.aimAssistActive = true;
-        window.magneticAim = true;
-        const target = window.findNearestEnemy();
-        if (target) {
-          window.lockTarget(target);
-          console.log('[LOCK] Alvo travado');
-        }
-      },
-      onShootEnd: function() {
-        console.log('[AIMBOT] Desativado');
-        window.aimAssistActive = false;
-        window.magneticAim = false;
-      }
-    };
-    window.addEventListener('mousedown', function(e) {
-      if (e.button === 0) {
-        window.shootActivatedAim.onShootStart();
-      }
-    });
-    window.addEventListener('mouseup', function(e) {
-      if (e.button === 0) {
-        window.shootActivatedAim.onShootEnd();
-      }
-    });
-    console.log('[INFO] Modo: Ativa ao apertar gatilho');
+  suavizacao: ${CONFIG.SUAVIZACAO_FORTE},
+  ativoApenasAoAtirar: true,
+  estaAtirando: false,
+  
+  processar(posicaoAtual, posicaoAlvo) {
+    // Só ativa se estiver atirando
+    if (this.ativoApenasAoAtirar && !this.estaAtirando) {
+      return posicaoAtual;
+    }
+    
+    if (!this.ativo) return posicaoAtual;
+    
+    return centralizar(
+      posicaoAtual,
+      posicaoAlvo,
+      this.suavizacao
+    );
+  },
+  
+  iniciarDisparo() {
+    this.estaAtirando = true;
+  },
+  
+  pararDisparo() {
+    this.estaAtirando = false;
   }
 };
-window.aimbotAoAtirar.iniciar();`,
 
-  // Chave Ao Olhar
+window.AimbotAtirar = AimbotAtirar;
+console.log('  → Suavização:', AimbotAtirar.suavizacao);
+console.log('  → Modo:', 'Ativo apenas ao atirar');
+`,
+
+  /**
+   * AIMBOT AO OLHAR
+   * Modo suave e contínuo
+   */
   'AO-3M6T-2L8Q': `
-// CÓDIGO AIMBOT AO OLHAR
-window.aimbotAoOlhar = {
+console.log('✓ [AIMBOT - AO OLHAR] Sistema Ativado');
+
+// Sistema Aimbot - Modo Contínuo
+const AimbotOlhar = {
   ativo: true,
-  modo: 'look',
-  iniciar: function() {
-    console.log('[✓] Aimbot AO OLHAR ativado');
-    window.lookActivatedAim = {
-      enabled: true,
-      detectionRadius: 200,
-      checkInterval: 16,
-      startTracking: function() {
-        setInterval(() => {
-          if (!this.enabled) return;
-          const enemies = window.getAllEnemies();
-          const nearestInView = this.findNearestInView(enemies);
-          if (nearestInView) {
-            console.log('[AIMBOT] Inimigo detectado - Ativando');
-            window.aimAssistActive = true;
-            window.magneticAim = true;
-            window.lockTarget(nearestInView);
-          } else {
-            window.aimAssistActive = false;
-            window.magneticAim = false;
-          }
-        }, this.checkInterval);
-      },
-      findNearestInView: function(enemies) {
-        const aim = window.currentAimPosition || {x:0, y:0};
-        let nearest = null;
-        let minDistance = this.detectionRadius;
-        enemies.forEach(enemy => {
-          if (!enemy.visible) return;
-          const pos = enemy.position;
-          const distance = Math.sqrt(
-            Math.pow(pos.x - aim.x, 2) + 
-            Math.pow(pos.y - aim.y, 2)
-          );
-          if (distance < minDistance) {
-            minDistance = distance;
-            nearest = enemy;
-          }
-        });
-        return nearest;
-      }
-    };
-    window.lookActivatedAim.startTracking();
-    console.log('[INFO] Modo: Ativa ao olhar para inimigo');
-    console.log('[INFO] Raio de detecção: 200px');
+  suavizacao: ${CONFIG.SUAVIZACAO_LEVE},
+  continuo: true,
+  
+  processar(posicaoAtual, posicaoAlvo) {
+    if (!this.ativo) return posicaoAtual;
+    
+    // Modo contínuo - sempre ativo
+    return centralizar(
+      posicaoAtual,
+      posicaoAlvo,
+      this.suavizacao
+    );
+  },
+  
+  ajustarSuavizacao(nivel) {
+    // Leve (0.1-0.3), Média (0.3-0.5), Forte (0.5-0.9)
+    this.suavizacao = clamp(nivel, 0.1, 0.9);
+    console.log('  → Suavização ajustada para:', this.suavizacao);
   }
 };
-window.aimbotAoOlhar.iniciar();`
+
+window.AimbotOlhar = AimbotOlhar;
+console.log('  → Suavização:', AimbotOlhar.suavizacao);
+console.log('  → Modo:', 'Contínuo (sempre ativo)');
+`
 };
 
-// Exporta para uso global
-window.CHAVES_CODIGOS = CHAVES_CODIGOS;
+// =====================
+// INFORMAÇÕES DO SISTEMA
+// =====================
+console.log(`
+╔════════════════════════════════════════╗
+║     AUXILIO RK7S - SISTEMA V2.0       ║
+║          @rk7s_ffx                     ║
+╚════════════════════════════════════════╝
+`);
+
+// Exportar para uso global
+if (typeof window !== 'undefined') {
+  window.CHAVES_CODIGOS = CHAVES_CODIGOS;
+  window.CONFIG = CONFIG;
+  window.clamp = clamp;
+  window.lerp = lerp;
+  window.centralizar = centralizar;
+  window.suavizar = suavizar;
+  window.distancia = distancia;
+}

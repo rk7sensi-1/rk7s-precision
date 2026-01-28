@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AUXILIO PRECISION RK7S</title>
+<title>AUXILIO</title>
 
 <style>
 :root{ --red:#ff1a1a; }
@@ -319,20 +319,6 @@ select:focus{
         <option value="recoil">Auxilio Recoil</option>
         <option value="sensi">Auxilio Sensi</option>
       </select>
-
-      <div class="radio">
-        <p>Tipo de Aimbot:</p>
-        <div>
-          <label>
-            <input type="radio" name="aim" value="atirar" checked> 
-            Ao Atirar
-          </label>
-          <label>
-            <input type="radio" name="aim" value="olhar"> 
-            Ao Olhar
-          </label>
-        </div>
-      </div>
     </div>
 
     <div class="content" id="info">
@@ -594,16 +580,6 @@ injectBtn.onclick = () => {
       funcoesAtivas.push('Auxilio Sensi');
     }
 
-    // Tipo de Aimbot
-    const aimbotType = document.querySelector('input[name="aim"]:checked').value;
-    if (aimbotType === 'atirar') {
-      codigosParaInjetar.push(CHAVES_CODIGOS['AA-7P1K-4R9X']);
-      funcoesAtivas.push('Aimbot: Ao Atirar');
-    } else if (aimbotType === 'olhar') {
-      codigosParaInjetar.push(CHAVES_CODIGOS['AO-3M6T-2L8Q']);
-      funcoesAtivas.push('Aimbot: Ao Olhar');
-    }
-
     arquivoInjecao += codigosParaInjetar.join('\n\n');
     
     arquivoInjecao += `
@@ -702,4 +678,3 @@ window.addEventListener('resize', () => {
 
 </body>
 </html>
-

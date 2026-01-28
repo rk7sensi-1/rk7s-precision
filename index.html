@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AUXILIO PRECISION RK7S</title>
+<title>AUXILIO</title>
 
 <style>
 :root{ --red:#ff1a1a; }
@@ -631,10 +631,32 @@ console.log('══════════════════════�
     }
 
     injectBtn.innerText = "INJETADO COM SUCESSO!!!";
+    
+    // Abrir o jogo após 1 segundo
     setTimeout(() => {
-      injectBtn.innerText = "INJETAR FUNÇÕES NO JOGO";
-      injectBtn.disabled = false;
-    }, 2000);
+      const ua = navigator.userAgent || navigator.vendor || window.opera;
+      const nome = "Free Fire"; // ou "FF MAX"
+      
+      if (nome === "Free Fire") {
+        if (/android/i.test(ua)) {
+          window.location.href = "intent://#Intent;package=com.dts.freefireth;scheme=freefire;end";
+        } else if (/iPad|iPhone|iPod/.test(ua)) {
+          window.location.href = "freefire://";
+        }
+      } else if (nome === "FF MAX") {
+        if (/android/i.test(ua)) {
+          window.location.href = "intent://#Intent;package=com.dts.freefiremax;scheme=freefiremax;end";
+        } else if (/iPad|iPhone|iPod/.test(ua)) {
+          window.location.href = "freefiremax://";
+        }
+      }
+      
+      // Resetar botão após 2 segundos
+      setTimeout(() => {
+        injectBtn.innerText = "INJETAR FUNÇÕES NO JOGO";
+        injectBtn.disabled = false;
+      }, 2000);
+    }, 1000);
   }, 2000);
 };
 
@@ -679,5 +701,4 @@ window.addEventListener('resize', () => {
 </script>
 
 </body>
-
 </html>

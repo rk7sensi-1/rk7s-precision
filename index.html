@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AUXILIO</title>
+<meta name="theme-color" content="#ff1a1a">
+<link rel="manifest" href="manifest.json">
+<title>Snaptube</title>
 
 <style>
 :root{ --red:#ff1a1a; }
@@ -266,6 +268,12 @@ select:focus{
   }
 }
 </style>
+
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("./sw.js");
+}
+</script>
 </head>
 
 <body>
